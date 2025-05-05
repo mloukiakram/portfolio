@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Premium Interactive Business Card</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Root variables for colors and transitions */
+        :root {
+            /* Updated accent color to a slightly richer blue */
+            --accent-color: #2563eb; /* Was #3b82f6 */
+            /* Adjusted glow and shadow colors to match */
+            --glow-color: rgba(37, 99, 235, 0.4);
+            --shadow-color: rgba(37, 99, 235, 0.15);
+            --linkedin-color: #0077B5;
+            --linkedin-glow-color: rgba(0, 119, 181, 0.4);
+            --linkedin-shadow-color: rgba(0, 119, 181, 0.15);
+            --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+            --flip-duration: 0.8s; /* Slightly longer flip */
+            /* Background gradient colors */
+            --bg-grad-1: #e0e7ff;
+            --bg-grad-2: #c7d2fe;
+            --bg-grad-3: #e2e8f0;
+            --bg-grad-4: #d1d5db;
+        }
+
+        /* Basic body setup for centering */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            /* Animated gradient background */
+            background: linear-gradient(-45deg, var(--bg-grad-1), var(--bg-grad-2), var(--bg-grad-3), var(--bg-grad-4));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Keyframes for the background animation */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+
+        /* Container for perspective and glow */
+        .business-card-container {
+            perspective: 1800px; /* Increased perspective */
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+        }
+
+        /* Glow effect behind the card */
+        .card-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 180%;
+            padding-bottom: 180%;
+            background: radial-gradient(circle, var(--glow-color) 0%, transparent 65%); /* Adjusted gradient stop */
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            filter: blur(70px); /* Increased blur */
+            opacity: 0;
+            transition: transform 0.8s var(--transition-smooth), opacity 0.8s var(--transition-smooth); /* Smoother transition */
+            z-index: -1;
+            pointer-events: none;
+            will-change: transform, opacity;
+        }
+
+        /* Show glow on container hover */
+        .business-card-container:hover .card-glow {
+            opacity: 0.7; /* Slightly reduced opacity */
+            transform: translate(-50%, -50%) scale(1.15); /* Slightly larger scale */
+        }
+
+        /* Main card element for flipping */
+        .business-card {
+            width: 100%;
+            min-height: 380px;
+            position: relative;
+            border-radius: 28px; /* Slightly larger radius */
+            /* Softer, more layered shadow */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05), 0 15px 35px rgba(0, 0, 0, 0.08);
+            transition: transform 0.6s var(--transition-smooth), box-shadow 0.6s var(--transition-smooth);
+            transform-style: preserve-3d;
+            cursor: pointer;
+            will-change: transform, box-shadow;
+        }
+
+        /* Shared styles for front and back faces */
+        .card-face {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 28px; /* Match card radius */
+            /* Subtle inner shadow for depth */
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.03);
+            background: linear-gradient(140deg, white 0%, #fcfdff 100%);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: center;
+            padding: 80px;
+            border: 1px solid rgba(0, 0, 0, 0.03); /* Lighter border */
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transition: transform var(--flip-duration) var(--transition-smooth);
+            /* Subtle noise texture overlay */
+            background-image: linear-gradient(140deg, white 0%, #fcfdff 100%), url("data:image/svg+xml,%3Csvg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.015'/%3E%3C/svg%3E");
+        }
+
+        /* Front face specific styles */
+        .card-front {
+            z-index: 2;
+            transform: rotateY(0deg);
+        }
+
+        .card-front::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: var(--accent-color);
+            border-radius: 28px 28px 0 0; /* Match radius */
+            opacity: 1; /* Full opacity */
+        }
+
+        /* Back face specific styles */
+        .card-back {
+            transform: rotateY(180deg);
+            align-items: center;
+            justify-content: center;
+            color: #4b5563;
+        }
+
+        .card-back::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: #6b7280;
+            border-radius: 28px 28px 0 0; /* Match radius */
+            opacity: 1; /* Full opacity */
+        }
+
+        /* Flip animation */
+        .business-card.is-flipped .card-front {
+            transform: rotateY(-180deg);
+        }
+
+        .business-card.is-flipped .card-back {
+            transform: rotateY(0deg);
+            z-index: 3;
+        }
+
+        /* --- Styles for Front Face Content --- */
+        .email-display {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 60px;
+            /* Slightly adjusted font size for better fit */
+            font-size: clamp(1.5rem, 6vw, 2rem);
+            line-height: 1.3; /* Adjusted line height */
+            color: #374151; /* Darker text */
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .email-part {
+            display: inline-block;
+            transition: all 0.5s var(--transition-smooth);
+            opacity: 0.6; /* Slightly less opacity */
+            transform: translateY(0);
+            cursor: default;
+            font-weight: 500;
+        }
+
+        .email-part.highlight {
+            opacity: 1;
+            transform: translateY(-3px) scale(1.02); /* Add subtle scale */
+            text-shadow: 0 3px 12px var(--shadow-color); /* Enhanced shadow */
+        }
+        .email-part.dim { opacity: 0.25; } /* More dim */
+
+        /* Highlight colors */
+        .highlight-color-name { color: var(--accent-color); }
+        .highlight-color-email { color: #ef4444; }
+        .highlight-color-linkedin {
+            color: var(--linkedin-color);
+            text-shadow: 0 3px 12px var(--linkedin-shadow-color);
+        }
+
+        /* Caption below the email */
+        .caption {
+            position: absolute;
+            bottom: -55px; /* Adjusted position */
+            left: 50%;
+            transform: translateX(-50%) translateY(15px);
+            font-size: 1rem; /* Slightly smaller */
+            line-height: 1.4;
+            color: #4b5563; /* Slightly lighter than email text */
+            margin-top: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s var(--transition-smooth);
+            white-space: nowrap;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .caption.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Container for icons */
+        .icon-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            margin-top: auto;
+            padding-top: 50px;
+            border-top: 1px solid rgba(229, 231, 235, 0.6); /* Lighter border */
+        }
+
+        /* Individual icon button styles */
+        .icon-btn {
+            background: none;
+            border: none;
+            padding: 0; /* Padding handled by inner element */
+            cursor: pointer;
+            color: #9ca3af;
+            border-radius: 50%;
+            transition: all 0.4s var(--transition-smooth); /* Faster transition */
+            position: relative;
+            width: 64px; /* Slightly larger */
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+        }
+        /* Add a pseudo-element for background glow on hover */
+        .icon-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50%;
+            background-color: rgba(37, 99, 235, 0.1); /* Accent color glow */
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.4s var(--transition-smooth);
+            z-index: -1;
+        }
+
+        .icon-btn:hover, .icon-btn:focus-visible {
+            color: var(--accent-color); /* Use accent color for icon */
+            transform: translateY(-4px); /* Slightly less lift */
+            outline: none;
+        }
+        .icon-btn:hover::before, .icon-btn:focus-visible::before {
+            opacity: 1;
+            transform: scale(1.2); /* Expand glow */
+        }
+        /* Specific focus ring */
+        .icon-btn:focus-visible {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.4);
+        }
+
+        .icon-btn svg {
+            width: 30px; /* Slightly smaller icon */
+            height: 30px;
+            display: block;
+            transition: transform 0.4s var(--transition-smooth);
+            position: relative; /* Ensure icon is above pseudo-element */
+            z-index: 1;
+        }
+        .icon-btn:hover svg, .icon-btn:focus-visible svg {
+            transform: scale(1.1); /* Remove rotation, just scale */
+        }
+        /* Special handling for LinkedIn icon hover color */
+         .icon-btn[data-type="linkedin"]:hover,
+         .icon-btn[data-type="linkedin"]:focus-visible {
+             color: var(--linkedin-color);
+         }
+         .icon-btn[data-type="linkedin"]::before {
+             background-color: rgba(0, 119, 181, 0.1); /* LinkedIn glow */
+         }
+         .icon-btn[data-type="linkedin"]:focus-visible {
+             box-shadow: 0 0 0 3px rgba(0, 119, 181, 0.4);
+         }
+         /* Special handling for Email icon hover color */
+         .icon-btn[data-type="email"]:hover,
+         .icon-btn[data-type="email"]:focus-visible {
+             color: #ef4444; /* Red */
+         }
+         .icon-btn[data-type="email"]::before {
+             background-color: rgba(239, 68, 68, 0.1); /* Red glow */
+         }
+         .icon-btn[data-type="email"]:focus-visible {
+             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.4);
+         }
+
+
+        /* Tooltip for copy action */
+        .tooltip {
+            position: absolute;
+            background-color: #1f2937;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s var(--transition-smooth);
+            white-space: nowrap;
+            z-index: 10;
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            pointer-events: none;
+            font-weight: 500;
+        }
+        .tooltip.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* --- Styles for Back Face Content --- */
+        .card-back-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px; /* Increased gap */
+        }
+
+        .qr-code-link {
+             display: block;
+             line-height: 0;
+             cursor: pointer;
+             pointer-events: none;
+             border-radius: 18px; /* Match card style */
+             transition: transform 0.4s var(--transition-smooth), box-shadow 0.4s var(--transition-smooth);
+             will-change: transform, box-shadow;
+             padding: 6px; /* Adjusted padding */
+             margin: -6px;
+        }
+
+        /* QR hover effect */
+        .qr-code-link:hover, .qr-code-link:focus-visible {
+            transform: scale(1.06); /* Slightly less scale */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); /* Adjusted shadow */
+            outline: none;
+        }
+        /* QR focus style */
+         .qr-code-link:focus-visible {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 0 0 3px rgba(37, 99, 235, 0.5); /* Accent color focus ring */
+         }
+
+
+        .qr-code-image {
+            width: 160px; /* Slightly larger */
+            height: 160px;
+            object-fit: contain;
+            border-radius: 14px; /* Adjusted radius */
+            background-color: white;
+            padding: 8px; /* Increased padding */
+            display: block;
+             /* Add subtle border to QR itself */
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .back-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #374151; /* Darker text */
+            transition: color 0.4s var(--transition-smooth);
+        }
+
+        /* QR hover text effect */
+        .qr-code-link:hover ~ .back-text,
+        .qr-code-link:focus-visible ~ .back-text {
+             color: var(--accent-color);
+        }
+
+        .back-instruction {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 20px; /* Adjusted margin */
+        }
+
+        /* Reduced motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+            body { animation: none; } /* Disable background animation */
+            .business-card, .email-part, .caption, .icon-btn, .icon-btn svg, .icon-btn::before, .tooltip, .card-glow, .card-face, .qr-code-link, .back-text {
+                transition: none !important;
+                transform: none !important;
+                animation: none !important;
+            }
+            .card-glow { opacity: 0 !important; }
+            .email-part.highlight { opacity: 1; }
+            .email-part.dim { opacity: 0.25; }
+            .caption.visible { opacity: 1; visibility: visible; }
+            .tooltip.visible { opacity: 1; visibility: visible; }
+            /* Ensure correct rotation state without transition */
+            .card-front { transform: rotateY(0deg) !important; }
+            .card-back { transform: rotateY(180deg) !important; }
+            .business-card.is-flipped .card-front { transform: rotateY(-180deg) !important; }
+            .business-card.is-flipped .card-back { transform: rotateY(0deg) !important; }
+            /* Remove hover effects */
+            .qr-code-link:hover, .qr-code-link:focus-visible { box-shadow: none !important; }
+            .qr-code-link:focus-visible { box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5) !important; }
+            .qr-code-link:hover ~ .back-text,
+            .qr-code-link:focus-visible ~ .back-text { color: #374151 !important; }
+            .icon-btn:hover, .icon-btn:focus-visible { transform: none !important; background: none !important; color: #9ca3af !important; }
+             .icon-btn[data-type="linkedin"]:hover, .icon-btn[data-type="linkedin"]:focus-visible { color: #9ca3af !important; }
+             .icon-btn[data-type="email"]:hover, .icon-btn[data-type="email"]:focus-visible { color: #9ca3af !important; }
+            .icon-btn:hover svg, .icon-btn:focus-visible svg { transform: none !important; }
+            .icon-btn::before { opacity: 0 !important; } /* Hide hover glow */
+            .floating { animation: none !important; } /* Disable floating */
+        }
+
+        /* Touch device adjustments */
+        @media (hover: none) {
+            .card-glow { transition: opacity 0.6s var(--transition-smooth); }
+            .business-card { transition: box-shadow 0.6s var(--transition-smooth); }
+            /* Disable hover effects on touch devices */
+            .qr-code-link:hover, .qr-code-link:focus-visible {
+                transform: none;
+                box-shadow: none;
+            }
+             .qr-code-link:hover ~ .back-text,
+             .qr-code-link:focus-visible ~ .back-text {
+                 color: #374151;
+             }
+             .icon-btn:hover, .icon-btn:focus-visible {
+                 transform: none;
+                 background: none;
+                 color: #9ca3af;
+             }
+              .icon-btn[data-type="linkedin"]:hover, .icon-btn[data-type="linkedin"]:focus-visible { color: #9ca3af; }
+              .icon-btn[data-type="email"]:hover, .icon-btn[data-type="email"]:focus-visible { color: #9ca3af; }
+             .icon-btn:hover svg, .icon-btn:focus-visible svg {
+                 transform: none;
+             }
+             .icon-btn::before { opacity: 0 !important; } /* Hide hover glow */
+             /* Prevent tilt/glow on touch */
+             .business-card { transform: none !important; }
+             .card-glow { opacity: 0 !important; }
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); } /* Increased float distance */
+        }
+
+        /* Apply floating only if not reduced motion */
+        .floating {
+            animation: float 7s ease-in-out infinite; /* Slower animation */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="business-card-container" id="card-container">
+        <div class="card-glow" id="card-glow"></div>
+
+        <div class="business-card" id="business-card" tabindex="0" aria-label="Business Card Front, Click or press Enter to flip">
+
+            <div class="card-face card-front">
+                <div class="email-display">
+                    <div>
+                        <span id="email-alias" class="email-part">akram.mlouki</span><span id="email-at" class="email-part">@</span><span id="email-domain" class="email-part">gmail</span><span id="email-tld" class="email-part">.com</span>
+                    </div>
+                    <span id="caption" class="caption">Hover over icons to interact</span>
+                </div>
+                <div class="icon-container">
+                    <button class="icon-btn" data-type="name" aria-label="View Name" tabindex="0">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+                     </button>
+                     <button class="icon-btn" data-type="email" aria-label="Copy Email Address" tabindex="0" id="email-icon-btn">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+                         <span class="tooltip" id="copy-tooltip">Copied!</span>
+                     </button>
+                     <button class="icon-btn" data-type="linkedin" aria-label="View LinkedIn Profile" tabindex="0" id="linkedin-btn">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke-width="0">
+                             <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                         </svg>
+                     </button>
+                </div>
+            </div>
+
+            <div class="card-face card-back">
+                <div class="card-back-content">
+                    <a href="https://drive.google.com/file/d/14T7Ftmodc5-G9QI2MEfrDNq3Zc93Fxt3/view?usp=drive_link"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="qr-code-link"
+                       id="qr-code-link"
+                       aria-label="Open Link from QR Code"
+                       tabindex="-1">
+                        <img src="https://i.imgur.com/CIYiHGw.png" alt="QR Code" class="qr-code-image"
+                             onerror="this.parentElement.style.display='none'; document.getElementById('qr-placeholder').style.display='flex';">
+                    </a>
+                     <div id="qr-placeholder" class="qr-code-placeholder" style="display: none; width: 160px; height: 160px; background-color: #e5e7eb; border: 1px dashed #9ca3af; align-items: center; justify-content: center; font-size: 0.9rem; color: #6b7280; border-radius: 12px; text-align: center; padding: 10px;">
+                        QR Code Unavailable
+                    </div>
+                    <p class="back-text">Scan or click for resume</p>
+                    <p class="back-instruction">Click card to flip back</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const cardContainer = document.getElementById('card-container');
+        const card = document.getElementById('business-card');
+        const cardGlow = document.getElementById('card-glow');
+        const emailAlias = document.getElementById('email-alias');
+        const emailAt = document.getElementById('email-at');
+        const emailDomain = document.getElementById('email-domain');
+        const emailTld = document.getElementById('email-tld');
+        const emailParts = [emailAlias, emailAt, emailDomain, emailTld];
+        const caption = document.getElementById('caption');
+        const icons = document.querySelectorAll('.icon-btn');
+        const emailIconButton = document.getElementById('email-icon-btn');
+        const linkedinButton = document.getElementById('linkedin-btn');
+        const copyTooltip = document.getElementById('copy-tooltip');
+        const qrCodeLink = document.getElementById('qr-code-link');
+
+        // --- Configuration ---
+        const fullEmail = `${emailAlias.textContent}${emailAt.textContent}${emailDomain.textContent}${emailTld.textContent}`;
+        const linkedinUrl = `https://www.linkedin.com/in/akram-mlouki-02aa88216/`;
+        let tooltipTimeout;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let isCardFlipped = false;
+        let currentTilt = { x: 0, y: 0 };
+
+        // --- Functions ---
+
+        function resetFrontStyles() {
+            emailParts.forEach(part => {
+                part.classList.remove('highlight', 'dim', 'highlight-color-name', 'highlight-color-email', 'highlight-color-linkedin');
+            });
+            caption.classList.remove('visible');
+            if (tooltipTimeout) clearTimeout(tooltipTimeout);
+            copyTooltip.classList.remove('visible');
+        }
+
+        function applyFrontStyles(type) {
+            resetFrontStyles();
+            caption.classList.add('visible');
+
+            switch (type) {
+                case 'name':
+                    emailAlias.classList.add('highlight', 'highlight-color-name');
+                    emailAt.classList.add('dim');
+                    emailDomain.classList.add('dim');
+                    emailTld.classList.add('dim');
+                    caption.textContent = 'Akram Mlouki';
+                    break;
+                case 'email':
+                    emailParts.forEach(part => part.classList.add('highlight', 'highlight-color-email'));
+                    caption.textContent = 'Click to copy email';
+                    break;
+                case 'linkedin':
+                    emailAlias.classList.add('highlight', 'highlight-color-linkedin');
+                    emailAt.classList.add('highlight', 'highlight-color-linkedin');
+                    emailDomain.classList.add('dim');
+                    emailTld.classList.add('dim');
+                    caption.textContent = 'Connect on LinkedIn';
+                    break;
+            }
+        }
+
+        function handleGlow(e) {
+            if (prefersReducedMotion) return;
+            const rect = cardContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            requestAnimationFrame(() => {
+                // Adjust glow position based on mouse for a subtle parallax
+                cardGlow.style.transform = `translate(calc(-50% + ${x / 10}px), calc(-50% + ${y / 10}px)) scale(1.15)`;
+                cardGlow.style.opacity = '0.7';
+            });
+        }
+
+        function resetGlow() {
+            if (prefersReducedMotion) return;
+            requestAnimationFrame(() => {
+                cardGlow.style.transform = 'translate(-50%, -50%) scale(0.8)';
+                cardGlow.style.opacity = '0';
+            });
+        }
+
+        function handleTilt(e) {
+            if (prefersReducedMotion) return;
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            const maxTilt = 6; // Reduced max tilt slightly
+            currentTilt.y = (maxTilt * x) / (rect.width / 2);
+            currentTilt.x = (-maxTilt * y) / (rect.height / 2);
+            requestAnimationFrame(() => {
+                // Apply tilt and scale effect
+                card.style.transform = `rotateX(${currentTilt.x}deg) rotateY(${currentTilt.y}deg) scale(1.04)`; // Slightly increased scale
+            });
+        }
+
+        function resetTilt() {
+            if (prefersReducedMotion) return;
+            currentTilt = { x: 0, y: 0 };
+            requestAnimationFrame(() => {
+                // Reset tilt and scale
+                card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+            });
+        }
+
+        function flipCard() {
+            isCardFlipped = !isCardFlipped;
+            card.classList.toggle('is-flipped');
+
+            if (isCardFlipped) {
+                 icons.forEach(icon => {
+                     icon.style.pointerEvents = 'none';
+                     icon.setAttribute('tabindex', '-1');
+                 });
+                 if (qrCodeLink) {
+                     qrCodeLink.style.pointerEvents = 'auto';
+                     qrCodeLink.setAttribute('tabindex', '0');
+                 }
+                 card.setAttribute('aria-label', 'Business Card Back, Click or press Enter to flip');
+            } else {
+                 icons.forEach(icon => {
+                     icon.style.pointerEvents = 'auto';
+                     icon.setAttribute('tabindex', '0');
+                 });
+                 if (qrCodeLink) {
+                     qrCodeLink.style.pointerEvents = 'none';
+                     qrCodeLink.setAttribute('tabindex', '-1');
+                 }
+                 card.setAttribute('aria-label', 'Business Card Front, Click or press Enter to flip');
+                 resetFrontStyles();
+            }
+        }
+
+        // --- Event Listeners ---
+
+        icons.forEach(icon => {
+            const type = icon.getAttribute('data-type');
+            icon.addEventListener('mouseenter', () => { if (!isCardFlipped) applyFrontStyles(type); });
+            icon.addEventListener('focus', () => { if (!isCardFlipped) applyFrontStyles(type); });
+            icon.addEventListener('mouseleave', resetFrontStyles);
+            icon.addEventListener('blur', resetFrontStyles);
+        });
+
+        emailIconButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isCardFlipped) return;
+            navigator.clipboard.writeText(fullEmail)
+                .then(() => {
+                    copyTooltip.textContent = 'Copied!';
+                    copyTooltip.classList.add('visible');
+                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                    tooltipTimeout = setTimeout(() => copyTooltip.classList.remove('visible'), 1500);
+                })
+                .catch(err => {
+                    console.error('Failed to copy email: ', err);
+                    copyTooltip.textContent = 'Error!';
+                    copyTooltip.classList.add('visible');
+                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                    tooltipTimeout = setTimeout(() => {
+                        copyTooltip.classList.remove('visible');
+                        setTimeout(() => { copyTooltip.textContent = 'Copied!'; }, 300);
+                    }, 1500);
+                });
+        });
+
+        linkedinButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isCardFlipped) return;
+            window.open(linkedinUrl, '_blank');
+        });
+
+        document.querySelector('.icon-btn[data-type="name"]').addEventListener('click', (e) => {
+             e.stopPropagation();
+        });
+
+        card.addEventListener('click', (e) => {
+            const clickedIcon = e.target.closest('.icon-btn');
+            const clickedQR = e.target.closest('.qr-code-link');
+            if ((clickedIcon && !isCardFlipped) || (clickedQR && isCardFlipped)) {
+                return;
+            }
+            flipCard();
+        });
+
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                if (document.activeElement === card) {
+                    e.preventDefault();
+                    flipCard();
+                }
+            }
+        });
+
+        if (qrCodeLink) {
+            qrCodeLink.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        // Apply mouse interactions only if not touch and not reduced motion
+        if (!('ontouchstart' in window || navigator.maxTouchPoints > 0) && !prefersReducedMotion) {
+            cardContainer.addEventListener('mousemove', (e) => {
+                handleGlow(e);
+                handleTilt(e);
+            });
+            cardContainer.addEventListener('mouseleave', () => {
+                resetGlow();
+                resetTilt();
+            });
+        }
+
+        // --- Initial Setup ---
+        resetFrontStyles();
+        if (qrCodeLink) {
+            qrCodeLink.style.pointerEvents = 'none';
+            qrCodeLink.setAttribute('tabindex', '-1');
+        }
+        // Apply floating class only if not reduced motion
+        if (!prefersReducedMotion) {
+            cardContainer.classList.add('floating');
+        }
+        card.setAttribute('aria-label', 'Business Card Front, Click or press Enter to flip');
+
+    </script>
+
+</body>
+</html>
